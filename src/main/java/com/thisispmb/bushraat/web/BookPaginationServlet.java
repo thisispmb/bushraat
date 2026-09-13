@@ -3,7 +3,6 @@ package com.thisispmb.bushraat.web;
 import com.thisispmb.bushraat.model.BookPage;
 import com.thisispmb.bushraat.repository.BookRepository;
 import com.thisispmb.bushraat.repository.FavoriteRepository;
-import com.thisispmb.bushraat.repository.ReadingProgressRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,18 +13,17 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-@WebServlet("/dashboard")
-public class DashboardServlet extends ThymeleafServlet {
+@WebServlet("/dashboard/books")
+public class BookPaginationServlet extends ThymeleafServlet {
+
     private static final int PAGE_SIZE = 20;
 
     private final BookRepository bookRepository;
     private final FavoriteRepository favoriteRepository;
-    private final ReadingProgressRepository readingProgressRepository;
 
-    public DashboardServlet() {
+    public BookPaginationServlet() {
         this.bookRepository = new BookRepository();
         this.favoriteRepository = new FavoriteRepository();
-        this.readingProgressRepository = new ReadingProgressRepository();
     }
 
     @Override
@@ -42,14 +40,15 @@ public class DashboardServlet extends ThymeleafServlet {
 
         Long userId = (Long) session.getAttribute("userId");
         String query = request.getParameter("query");
+        int page = getPage(request);
 
         try {
             BookPage bookPage;
 
             if (query == null || query.isBlank()) {
-                bookPage = bookRepository.findPage(1, PAGE_SIZE);
+                bookPage = bookRepository.findPage(page, PAGE_SIZE);
             } else {
-                bookPage = bookRepository.searchPage(query.trim(), 1, PAGE_SIZE);
+                bookPage = bookRepository.searchPage(query.trim(), page, PAGE_SIZE);
             }
 
             Set<Long> savedBookIds = new HashSet<>();
@@ -59,20 +58,29 @@ public class DashboardServlet extends ThymeleafServlet {
 
             request.setAttribute("books", bookPage.books());
             request.setAttribute("savedBookIds", savedBookIds);
-
-            request.setAttribute("readingBooks",
-                    readingProgressRepository.findCurrentlyReading(userId));
-
-            request.setAttribute("query", query);
-            request.setAttribute("currentPage", 1);
-            request.setAttribute("pageSize", PAGE_SIZE);
+            request.setAttribute("requestUri", request.getContextPath() + "/dashboard");
             request.setAttribute("hasMore", bookPage.hasMore());
-            request.setAttribute("page", "home");
 
-            render("dashboard", request, response);
+            response.setContentType("text/html;charset=UTF-8");
+
+            render("fragments/book-cards", request, response);
 
         } catch (Exception e) {
-            throw new ServletException("Unable to load dashboard.", e);
+            throw new ServletException("Unable to load more books.", e);
+        }
+    }
+
+    private int getPage(HttpServletRequest request) {
+        String value = request.getParameter("page");
+
+        if (value == null || value.isBlank()) {
+            return 1;
+        }
+
+        try {
+            return Math.max(1, Integer.parseInt(value));
+        } catch (NumberFormatException ignored) {
+            return 1;
         }
     }
 }

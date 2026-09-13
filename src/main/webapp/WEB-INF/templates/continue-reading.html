@@ -358,15 +358,9 @@
             <p>Pick up exactly where you left off.</p>
           </div>
           
-          <div class="empty"
-               th:if="${readingBooks == null or #lists.isEmpty(readingBooks)}">
+          <div class="empty" th:if="${readingBooks == null or #lists.isEmpty(readingBooks)}">
             
-            <svg fill="none"
-                 height="34"
-                 stroke="currentColor"
-                 stroke-width="1.4"
-                 viewBox="0 0 24 24"
-                 width="34">
+            <svg fill="none" height="34" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" width="34">
               
               <circle cx="12" cy="12" r="8.5"/>
               <path d="M12 7.5v5l3 2"/>
@@ -377,21 +371,15 @@
             
             <p>Open a book and save your reading position to see it here.</p>
             
-            <a class="btn btn-inline"
-               th:href="@{/dashboard}">
-              Browse the library
-            </a>
+            <a class="btn btn-inline" th:href="@{/dashboard}">Browse the library</a>
           
           </div>
           
-          <div class="reading-grid"
-               th:unless="${readingBooks == null or #lists.isEmpty(readingBooks)}">
+          <div class="reading-grid" th:unless="${readingBooks == null or #lists.isEmpty(readingBooks)}">
             
-            <article class="reading-card"
-                     th:each="book : ${readingBooks}">
+            <article class="reading-card" th:each="book : ${readingBooks}">
               
-              <a class="reading-cover"
-                 th:href="@{/read/{id}(id=${book.id}, page=${book.lastPageRead})}">
+              <a class="reading-cover" th:href="@{/read/{id}(id=${book.id}, page=${book.lastPageRead})}">
                 
                 <img th:alt="${book.title}"
                      th:if="${book.coverImagePath != null and !book.coverImagePath.isBlank()}"
@@ -399,15 +387,12 @@
                 
                 <span th:text="${book.title}"
                       th:unless="${book.coverImagePath != null and !book.coverImagePath.isBlank()}">
-                        Book title
-                    </span>
+                  Book title
+                </span>
                 
-                <div aria-hidden="true"
-                     class="reading-progress-track">
+                <div aria-hidden="true" class="reading-progress-track">
                   
-                  <div class="reading-progress-fill"
-                       style="width: 100%;">
-                  </div>
+                  <div class="reading-progress-fill" style="width: 100%;"></div>
                 
                 </div>
               
@@ -417,14 +402,9 @@
                 
                 <p class="reading-format">PDF</p>
                 
-                <h2 th:text="${book.title}">
-                  Book title
-                </h2>
+                <h2 th:text="${book.title}">Book title</h2>
                 
-                <p class="reading-author"
-                   th:text="${book.author}">
-                  Author
-                </p>
+                <p class="reading-author" th:text="${book.author}">Author</p>
                 
                 <p class="reading-description"
                    th:if="${book.description != null and !book.description.isBlank()}"
@@ -438,9 +418,7 @@
                     
                     <span>Saved at page</span>
                     
-                    <strong th:text="${book.lastPageRead}">
-                      8
-                    </strong>
+                    <strong th:text="${book.lastPageRead}">8</strong>
                   
                   </div>
                   
@@ -451,11 +429,7 @@
                       
                       <span>Continue reading</span>
                       
-                      <svg fill="none"
-                           height="14"
-                           stroke="currentColor"
-                           stroke-width="2"
-                           viewBox="0 0 24 24"
+                      <svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
                            width="14">
                         
                         <path d="M9 6l6 6-6 6"/>
@@ -464,18 +438,11 @@
                     
                     </a>
                     
-                    <form class="reading-clear-form"
-                          method="post"
-                          th:action="@{/progress/clear}">
+                    <form class="reading-clear-form" method="post" th:action="@{/progress/clear}">
                       
-                      <input name="bookId"
-                             th:value="${book.id}"
-                             type="hidden">
+                      <input name="bookId" th:value="${book.id}" type="hidden">
                       
-                      <button class="btn btn-ghost reading-clear"
-                              type="submit">
-                        Clear progress
-                      </button>
+                      <button class="btn btn-ghost reading-clear" type="submit">Clear progress</button>
                     
                     </form>
                   

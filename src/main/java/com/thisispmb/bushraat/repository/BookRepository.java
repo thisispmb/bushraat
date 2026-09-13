@@ -1,6 +1,7 @@
 package com.thisispmb.bushraat.repository;
 
 import com.thisispmb.bushraat.model.Book;
+import com.thisispmb.bushraat.model.BookPage;
 import com.thisispmb.bushraat.model.Category;
 import com.thisispmb.bushraat.util.Db;
 
@@ -169,6 +170,96 @@ public class BookRepository {
         return books;
     }
 
+    public BookPage findPage(int page, int pageSize) throws SQLException {
+        return findPage(null, page, pageSize);
+    }
+
+    public BookPage searchPage(String keyword, int page, int pageSize)
+            throws SQLException {
+
+        return findPage(keyword, page, pageSize);
+    }
+
+    private BookPage findPage(String keyword, int page, int pageSize)
+            throws SQLException {
+
+        page = Math.max(page, 1);
+        pageSize = Math.max(pageSize, 1);
+
+        int offset = (page - 1) * pageSize;
+
+        StringBuilder sql = new StringBuilder("""
+                SELECT b.id,
+                       b.title,
+                       b.author,
+                       b.category_id,
+                       c.name AS category_name,
+                       c.description AS category_description,
+                       b.description,
+                       b.cover_image_path,
+                       b.file_path,
+                       b.file_type,
+                       b.uploaded_at,
+                       b.updated_at
+                FROM books b
+                LEFT JOIN categories c
+                       ON b.category_id = c.id
+                """);
+
+        boolean searching = keyword != null && !keyword.isBlank();
+
+        if (searching) {
+            sql.append("""
+                    WHERE LOWER(b.title) LIKE LOWER(?)
+                       OR LOWER(b.author) LIKE LOWER(?)
+                       OR LOWER(c.name) LIKE LOWER(?)
+                    """);
+        }
+
+        sql.append("""
+                ORDER BY b.title, b.id
+                LIMIT ? OFFSET ?
+                """);
+
+        List<Book> books = new ArrayList<>();
+
+        try (Connection connection = Db.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql.toString())) {
+
+            int parameter = 1;
+
+            if (searching) {
+                String pattern = "%" + keyword.trim() + "%";
+
+                statement.setString(parameter++, pattern);
+                statement.setString(parameter++, pattern);
+                statement.setString(parameter++, pattern);
+            }
+
+
+            // Fetch one extra book so we can determine whether another
+            // page exists without performing a separate COUNT query.
+
+            statement.setInt(parameter++, pageSize + 1);
+            statement.setInt(parameter, offset);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    books.add(mapRow(resultSet));
+                }
+            }
+        }
+
+        boolean hasMore = books.size() > pageSize;
+
+        if (hasMore) {
+            books.remove(books.size() - 1);
+        }
+
+        return new BookPage(books, hasMore);
+    }
+
     public void save(Book book) throws SQLException {
 
         String sql = """
@@ -257,7 +348,7 @@ public class BookRepository {
             statement.setString(6, book.getFilePath());
             statement.setString(7, book.getFileType());
             statement.setLong(8, book.getId());
-            
+
             statement.executeUpdate();
         }
     }
