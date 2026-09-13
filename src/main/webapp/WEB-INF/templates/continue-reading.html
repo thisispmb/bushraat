@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   
   <head>
@@ -9,34 +10,103 @@
     <link rel="stylesheet" th:href="@{/css/main.css}">
     
     <style>
+      .page-head {
+        margin-bottom: 32px;
+      }
+      
+      .page-head h1 {
+        margin: 0 0 6px;
+        font-family: var(--serif), serif;
+        font-weight: 500;
+        font-size: 28px;
+        letter-spacing: -0.01em;
+        color: var(--ink);
+      }
+      
+      .page-head p {
+        margin: 0;
+        font-size: 15px;
+        color: var(--ink-soft);
+      }
+      
+      .empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        padding: 96px 24px;
+        text-align: center;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--surface);
+      }
+      
+      .empty svg {
+        color: var(--ink-soft);
+        opacity: 0.6;
+      }
+      
+      .empty h2 {
+        margin: 0;
+        font-family: var(--serif), serif;
+        font-weight: 500;
+        font-size: 18px;
+        color: var(--ink);
+      }
+      
+      .empty p {
+        margin: 0;
+        max-width: 320px;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--ink-soft);
+      }
+      
+      .btn-inline {
+        margin-top: 6px;
+      }
+      
       .reading-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 20px;
+      }
+      
+      @media (max-width: 760px) {
+        .reading-grid {
+          grid-template-columns: 1fr;
+        }
       }
       
       .reading-card {
         display: grid;
-        grid-template-columns: 176px minmax(0, 1fr);
+        grid-template-columns: 190px minmax(0, 1fr);
+        align-items: stretch;
         min-width: 0;
         border: 1px solid var(--border);
-        border-radius: 6px;
+        border-radius: 16px;
         overflow: hidden;
-        transition: border-color 0.15s ease;
+        background: var(--surface);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
       }
       
       .reading-card:hover {
-        border-color: var(--accent);
+        border-color: transparent;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
       }
       
       .reading-cover {
         position: relative;
         display: flex;
         align-items: flex-end;
-        min-height: 240px;
-        padding: 14px;
+        min-height: 220px;
         color: #fff;
         text-decoration: none;
+        overflow: hidden;
+        background: linear-gradient(155deg, #4b4b52, #232326);
       }
       
       .reading-cover img {
@@ -47,31 +117,26 @@
         object-fit: cover;
       }
       
+      .reading-cover::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.5) 100%);
+        z-index: 1;
+      }
+      
       .reading-cover span {
         position: relative;
+        z-index: 2;
+        padding: 16px;
         font-family: var(--serif), serif;
+        font-weight: 500;
         font-size: 15px;
-        line-height: 1.3;
+        line-height: 1.35;
         display: -webkit-box;
-        -webkit-line-clamp: 4;
+        -webkit-line-clamp: 5;
         -webkit-box-orient: vertical;
         overflow: hidden;
-      }
-      
-      .reading-card:nth-child(4n+1) .reading-cover {
-        background: #2f5d4f;
-      }
-      
-      .reading-card:nth-child(4n+2) .reading-cover {
-        background: #33465c;
-      }
-      
-      .reading-card:nth-child(4n+3) .reading-cover {
-        background: #7c5c42;
-      }
-      
-      .reading-card:nth-child(4n+4) .reading-cover {
-        background: #3a3a38;
       }
       
       .reading-body {
@@ -82,21 +147,27 @@
       }
       
       .reading-format {
-        margin: 0 0 8px;
+        margin: 0 0 10px;
         font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.06em;
+        font-weight: 700;
+        letter-spacing: 0.09em;
         text-transform: uppercase;
-        color: var(--ink-soft);
+        color: var(--accent);
       }
       
       .reading-body h2 {
-        margin: 0 0 4px;
+        margin: 0 0 5px;
         font-family: var(--serif), serif;
-        font-weight: normal;
+        font-weight: 500;
         font-size: 19px;
         line-height: 1.3;
+        letter-spacing: -0.01em;
+        color: var(--ink);
         overflow-wrap: anywhere;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
       
       .reading-author {
@@ -118,7 +189,7 @@
       
       .reading-position {
         margin-top: auto;
-        padding-top: 16px;
+        padding-top: 20px;
       }
       
       .reading-position-row {
@@ -126,8 +197,9 @@
         align-items: baseline;
         justify-content: space-between;
         gap: 16px;
-        padding-top: 16px;
-        border-top: 1px solid var(--border);
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid var(--border);
         font-size: 13px;
       }
       
@@ -140,25 +212,50 @@
         font-weight: 600;
       }
       
-      .reading-progress-track {
-        margin-top: 10px;
-        height: 4px;
-        border-radius: 2px;
-        background: var(--border);
-        overflow: hidden;
+      .reading-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
       }
       
-      .reading-progress-fill {
-        height: 100%;
-        background: var(--accent);
-      }
-      
-      .reading-continue {
-        margin-top: 16px;
+      .reading-continue,
+      .reading-clear {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 6px;
+        min-height: 44px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 590;
+        letter-spacing: -0.01em;
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease,
+        color 0.15s ease, transform 0.1s ease;
+      }
+      
+      .reading-continue {
+        margin-top: 0;
+        background: transparent;
+        border-color: var(--border);
+        color: var(--ink);
+      }
+      
+      .reading-continue:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      
+      .reading-continue:active {
+        transform: scale(0.98);
+        filter: brightness(0.92);
       }
       
       .reading-continue svg {
@@ -166,44 +263,84 @@
       }
       
       .reading-continue:hover svg {
-        transform: translateX(2px);
+        transform: translateX(1px);
       }
       
       .reading-clear-form {
-        margin-top: 8px;
-        text-align: center;
+        display: flex;
+        margin: 0;
       }
       
       .reading-clear {
-        border: 0;
-        background: none;
+        width: 100%;
+        border-color: var(--border);
+        background: transparent;
         color: var(--ink-soft);
-        padding: 4px 8px;
-        font: inherit;
-        font-size: 12px;
-        cursor: pointer;
       }
       
       .reading-clear:hover {
-        color: var(--accent);
+        background: var(--bg);
+        border-color: var(--border);
+        color: var(--ink);
       }
       
-      @media (max-width: 760px) {
-        .reading-grid {
-          grid-template-columns: 1fr;
-        }
+      .reading-clear:active {
+        transform: scale(0.98);
+        background: var(--bg);
       }
       
-      @media (max-width: 560px) {
+      .reading-clear:focus-visible,
+      .reading-continue:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      
+      .reading-clear:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+      
+      .reading-progress-track {
+        position: absolute;
+        right: 14px;
+        bottom: 14px;
+        left: 14px;
+        z-index: 2;
+        height: 4px;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.3);
+        overflow: hidden;
+      }
+      
+      .reading-progress-fill {
+        height: 100%;
+        border-radius: 2px;
+        background: #fff;
+      }
+      
+      @media (max-width: 480px) {
         .reading-card {
-          grid-template-columns: 1fr;
+          grid-template-columns: minmax(0, 1fr);
         }
         
         .reading-cover {
-          min-height: 200px;
+          display: none;
+        }
+        
+        .reading-body {
+          padding: 16px;
+        }
+        
+        .reading-format {
+          margin-top: 2px;
+        }
+        
+        .reading-actions {
+          grid-template-columns: 1fr 1fr;
         }
       }
     </style>
+  
   </head>
   
   <body>
@@ -224,7 +361,12 @@
           <div class="empty"
                th:if="${readingBooks == null or #lists.isEmpty(readingBooks)}">
             
-            <svg fill="none" height="34" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" width="34">
+            <svg fill="none"
+                 height="34"
+                 stroke="currentColor"
+                 stroke-width="1.4"
+                 viewBox="0 0 24 24"
+                 width="34">
               
               <circle cx="12" cy="12" r="8.5"/>
               <path d="M12 7.5v5l3 2"/>
@@ -235,13 +377,18 @@
             
             <p>Open a book and save your reading position to see it here.</p>
             
-            <a class="btn btn-inline" th:href="@{/dashboard}">Browse the library</a>
+            <a class="btn btn-inline"
+               th:href="@{/dashboard}">
+              Browse the library
+            </a>
           
           </div>
           
-          <div class="reading-grid" th:unless="${readingBooks == null or #lists.isEmpty(readingBooks)}">
+          <div class="reading-grid"
+               th:unless="${readingBooks == null or #lists.isEmpty(readingBooks)}">
             
-            <article class="reading-card" th:each="book : ${readingBooks}">
+            <article class="reading-card"
+                     th:each="book : ${readingBooks}">
               
               <a class="reading-cover"
                  th:href="@{/read/{id}(id=${book.id}, page=${book.lastPageRead})}">
@@ -252,18 +399,33 @@
                 
                 <span th:text="${book.title}"
                       th:unless="${book.coverImagePath != null and !book.coverImagePath.isBlank()}">
-                            Book title
-                </span>
+                        Book title
+                    </span>
+                
+                <div aria-hidden="true"
+                     class="reading-progress-track">
+                  
+                  <div class="reading-progress-fill"
+                       style="width: 100%;">
+                  </div>
+                
+                </div>
               
               </a>
               
               <div class="reading-body">
                 
-                <p class="reading-format" th:text="'PDF'">PDF</p>
+                <p class="reading-format">PDF</p>
                 
-                <h2 th:text="${book.title}">Book title</h2>
+                <h2 th:text="${book.title}">
+                  Book title
+                </h2>
                 
-                <p class="reading-author" th:text="${book.author}">Author</p>
+                <p class="reading-author"
+                   th:text="${book.author}">
+                  Author
+                </p>
+                
                 <p class="reading-description"
                    th:if="${book.description != null and !book.description.isBlank()}"
                    th:text="${book.description}">
@@ -274,31 +436,50 @@
                   
                   <div class="reading-position-row">
                     
-                    <span th:text="'Saved at page'">Saved at page</span>
+                    <span>Saved at page</span>
                     
-                    <strong th:text="${book.lastPageRead}">8</strong>
+                    <strong th:text="${book.lastPageRead}">
+                      8
+                    </strong>
                   
                   </div>
                   
-                  <a class="btn btn-ghost reading-continue"
-                     th:href="@{/read/{id}(id=${book.id}, page=${book.lastPageRead})}">
+                  <div class="reading-actions">
                     
-                    <span>Continue reading</span>
-                    
-                    <svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14">
+                    <a class="btn btn-ghost reading-continue"
+                       th:href="@{/read/{id}(id=${book.id}, page=${book.lastPageRead})}">
                       
-                      <path d="M9 6l6 6-6 6"/>
+                      <span>Continue reading</span>
+                      
+                      <svg fill="none"
+                           height="14"
+                           stroke="currentColor"
+                           stroke-width="2"
+                           viewBox="0 0 24 24"
+                           width="14">
+                        
+                        <path d="M9 6l6 6-6 6"/>
+                      
+                      </svg>
                     
-                    </svg>
-                  
-                  </a>
-                  
-                  <form class="reading-clear-form" method="post" th:action="@{/progress/clear}">
+                    </a>
                     
-                    <input name="bookId" th:value="${book.id}" type="hidden">
-                    <button class="reading-clear" type="submit">Clear progress</button>
+                    <form class="reading-clear-form"
+                          method="post"
+                          th:action="@{/progress/clear}">
+                      
+                      <input name="bookId"
+                             th:value="${book.id}"
+                             type="hidden">
+                      
+                      <button class="btn btn-ghost reading-clear"
+                              type="submit">
+                        Clear progress
+                      </button>
+                    
+                    </form>
                   
-                  </form>
+                  </div>
                 
                 </div>
               
@@ -315,5 +496,4 @@
     </div>
   
   </body>
-
 </html>
