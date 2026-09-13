@@ -1,46 +1,55 @@
-<th:block th:fragment="cards">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
   
-  <article class="book-card" th:each="book : ${books}">
+  <body>
     
-    <a th:href="@{/books/{id}(id=${book.id})}">
+    <th:block th:fragment="cards">
       
-      <div class="book-cover">
+      <article class="book-card" th:each="book : ${books}">
         
-        <img th:alt="${book.title}"
-             th:if="${book.coverImagePath != null and !book.coverImagePath.isBlank()}"
-             th:src="@{/books/{id}/cover(id=${book.id})}">
-        
-        <span th:text="${book.title}"
-              th:unless="${book.coverImagePath != null and !book.coverImagePath.isBlank()}">
+        <a th:href="@{/books/{id}(id=${book.id})}">
+          
+          <div class="book-cover">
+            
+            <img th:alt="${book.title}"
+                 th:if="${book.coverImagePath != null and !book.coverImagePath.isBlank()}"
+                 th:src="@{/books/{id}/cover(id=${book.id})}">
+            
+            <span th:text="${book.title}"
+                  th:unless="${book.coverImagePath != null and !book.coverImagePath.isBlank()}">
           Book Title
         </span>
+          
+          </div>
+          
+          <p class="book-title" th:text="${book.title}">Book Title</p>
+        
+        </a>
+        
+        <p class="book-author" th:text="${book.author}">Author Name</p>
+        
+        <form method="post" th:action="@{/save}" th:if="${!savedBookIds.contains(book.id)}">
+          
+          <input name="bookId" th:value="${book.id}" type="hidden">
+          <input name="redirect" th:value="${requestUri}" type="hidden">
+          
+          <button class="btn btn-ghost btn-sm" type="submit">Save book</button>
+        
+        </form>
+        
+        <form method="post" th:action="@{/unsave}" th:if="${savedBookIds.contains(book.id)}">
+          
+          <input name="bookId" th:value="${book.id}" type="hidden">
+          <input name="redirect" th:value="${requestUri}" type="hidden">
+          
+          <button class="btn btn-ghost btn-sm" type="submit">Saved</button>
+        
+        </form>
       
-      </div>
-      
-      <p class="book-title" th:text="${book.title}">Book Title</p>
+      </article>
     
-    </a>
-    
-    <p class="book-author" th:text="${book.author}">Author Name</p>
-    
-    <form method="post" th:action="@{/save}" th:if="${!savedBookIds.contains(book.id)}">
-      
-      <input name="bookId" th:value="${book.id}" type="hidden">
-      <input name="redirect" th:value="${requestUri}" type="hidden">
-      
-      <button class="btn btn-ghost btn-sm" type="submit">Save book</button>
-    
-    </form>
-    
-    <form method="post" th:action="@{/unsave}" th:if="${savedBookIds.contains(book.id)}">
-      
-      <input name="bookId" th:value="${book.id}" type="hidden">
-      <input name="redirect" th:value="${requestUri}" type="hidden">
-      
-      <button class="btn btn-ghost btn-sm" type="submit">Saved</button>
-    
-    </form>
+    </th:block>
   
-  </article>
+  </body>
 
-</th:block>
+</html>
