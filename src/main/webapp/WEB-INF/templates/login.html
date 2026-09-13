@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  
+  <head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <title>Sign in - Bushraat</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+  </head>
+  
+  <body>
+    
+    <div class="auth">
+      
+      <div class="brand">
+        
+        <svg fill="none" height="22" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" width="22">
+          
+          <path d="M6 3h9a3 3 0 0 1 3 3v15l-6-3.5L6 21V3z"/>
+        
+        </svg>
+        
+        Bushraat
+      
+      </div>
+      
+      <div class="auth-panel">
+        
+        <h1>Sign in</h1>
+        
+        <p class="lede">Enter your details to reach your shelf.</p>
+        
+        <div class="message error" th:if="${param.error}">Invalid email or password.</div>
+        
+        <div class="message success" th:if="${param.reset}">
+          Your password has been reset. You can sign in now.
+        </div>
+        
+        <div class="message success" th:if="${param.logout}">
+          You have been logged out successfully.
+        </div>
+        
+        <form method="post" th:action="@{/login}">
+          
+          <div class="field">
+            
+            <label for="username">Email</label>
+            <input id="username" name="username" placeholder="you@example.com" required type="email">
+          
+          </div>
+          
+          <div class="field">
+            
+            <label for="password">Password</label>
+            
+            <div class="password-wrapper">
+              
+              <input id="password" name="password" placeholder="Your password" required type="password">
+              
+              <button aria-label="Show password" class="password-toggle" data-target="password" type="button">
+                
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  
+                  <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/>
+                  <circle cx="12" cy="12" r="2.5"/>
+                
+                </svg>
+              
+              </button>
+            
+            </div>
+          
+          </div>
+          
+          <button class="btn" type="submit">Sign in</button>
+        
+        </form>
+      
+      </div>
+      
+      <p style="text-align:center;margin:14px 0 0;font-size:13px">
+        
+        <a style="color:var(--accent);text-decoration:none"
+           th:href="@{/forgot-password}">
+          Forgot password?
+        </a>
+      
+      </p>
+      
+      <p class="auth-footer">
+        Don't have an account?
+        <a th:href="@{/register}">Create one</a>
+      </p>
+    
+    </div>
+    
+    <script th:src="@{/js/main.js}"></script>
+  
+  </body>
+
+</html>

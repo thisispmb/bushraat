@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  
+  <head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <title>Continue Reading - Bushraat</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    
+    <style>
+      .reading-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+        gap: 20px;
+      }
+      
+      .reading-card {
+        display: grid;
+        grid-template-columns: 176px minmax(0, 1fr);
+        min-width: 0;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+        transition: border-color 0.15s ease;
+      }
+      
+      .reading-card:hover {
+        border-color: var(--accent);
+      }
+      
+      .reading-cover {
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        min-height: 240px;
+        padding: 14px;
+        color: #fff;
+        text-decoration: none;
+      }
+      
+      .reading-cover img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      .reading-cover span {
+        position: relative;
+        font-family: var(--serif), serif;
+        font-size: 15px;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      
+      .reading-card:nth-child(4n+1) .reading-cover {
+        background: #2f5d4f;
+      }
+      
+      .reading-card:nth-child(4n+2) .reading-cover {
+        background: #33465c;
+      }
+      
+      .reading-card:nth-child(4n+3) .reading-cover {
+        background: #7c5c42;
+      }
+      
+      .reading-card:nth-child(4n+4) .reading-cover {
+        background: #3a3a38;
+      }
+      
+      .reading-body {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        padding: 22px 24px;
+      }
+      
+      .reading-format {
+        margin: 0 0 8px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+      }
+      
+      .reading-body h2 {
+        margin: 0 0 4px;
+        font-family: var(--serif), serif;
+        font-weight: normal;
+        font-size: 19px;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+      }
+      
+      .reading-author {
+        margin: 0;
+        font-size: 13px;
+        color: var(--ink-soft);
+      }
+      
+      .reading-description {
+        margin: 12px 0 0;
+        font-size: 13.5px;
+        line-height: 1.6;
+        color: var(--ink-soft);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      
+      .reading-position {
+        margin-top: auto;
+        padding-top: 16px;
+      }
+      
+      .reading-position-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+        font-size: 13px;
+      }
+      
+      .reading-position-row span {
+        color: var(--ink-soft);
+      }
+      
+      .reading-position-row strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      
+      .reading-progress-track {
+        margin-top: 10px;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--border);
+        overflow: hidden;
+      }
+      
+      .reading-progress-fill {
+        height: 100%;
+        background: var(--accent);
+      }
+      
+      .reading-continue {
+        margin-top: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      
+      .reading-continue svg {
+        transition: transform 0.15s ease;
+      }
+      
+      .reading-continue:hover svg {
+        transform: translateX(2px);
+      }
+      
+      @media (max-width: 760px) {
+        .reading-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      
+      @media (max-width: 560px) {
+        .reading-card {
+          grid-template-columns: 1fr;
+        }
+        
+        .reading-cover {
+          min-height: 200px;
+        }
+      }
+    </style>
+  </head>
+  
+  <body>
+    
+    <div class="layout">
+      
+      <aside th:replace="~{fragments/sidebar :: sidebar('continue')}"></aside>
+      
+      <main class="main">
+        
+        <div class="content">
+          
+          <div class="page-head">
+            <h1>Continue reading</h1>
+            <p>Pick up exactly where you left off.</p>
+          </div>
+          
+          <div class="empty"
+               th:if="${readingBooks == null or #lists.isEmpty(readingBooks)}">
+            
+            <svg fill="none" height="34" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" width="34">
+              
+              <circle cx="12" cy="12" r="8.5"/>
+              <path d="M12 7.5v5l3 2"/>
+            
+            </svg>
+            
+            <h2>Nothing to continue yet</h2>
+            
+            <p>Open a book and save your reading position to see it here.</p>
+            
+            <a class="btn btn-inline" th:href="@{/dashboard}">Browse the library</a>
+          
+          </div>
+          
+          <div class="reading-grid" th:unless="${readingBooks == null or #lists.isEmpty(readingBooks)}">
+            
+            <article class="reading-card" th:each="book : ${readingBooks}">
+              
+              <a class="reading-cover"
+                 th:href="@{/read/{id}(id=${book.id}, page=${book.lastPageRead})}">
+                
+                <img th:alt="${book.title}"
+                     th:if="${book.coverImagePath != null and !book.coverImagePath.isBlank()}"
+                     th:src="@{/books/{id}/cover(id=${book.id})}">
+                
+                <span th:text="${book.title}"
+                      th:unless="${book.coverImagePath != null and !book.coverImagePath.isBlank()}">
+                            Book title
+                </span>
+              
+              </a>
+              
+              <div class="reading-body">
+                
+                <p class="reading-format" th:text="'PDF'">PDF</p>
+                
+                <h2 th:text="${book.title}">Book title</h2>
+                
+                <p class="reading-author" th:text="${book.author}">Author</p>
+                <p class="reading-description"
+                   th:if="${book.description != null and !book.description.isBlank()}"
+                   th:text="${book.description}">
+                  A short summary of the book goes here.
+                </p>
+                
+                <div class="reading-position">
+                  
+                  <div class="reading-position-row">
+                    
+                    <span th:text="'Saved at page'">Saved at page</span>
+                    
+                    <strong th:text="${book.lastPageRead}">8</strong>
+                  
+                  </div>
+                  
+                  <a class="btn btn-ghost reading-continue"
+                     th:href="@{/read/{id}(id=${book.id}, page=${book.lastPageRead})}">
+                    
+                    <span>Continue reading</span>
+                    
+                    <svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14">
+                      
+                      <path d="M9 6l6 6-6 6"/>
+                    
+                    </svg>
+                  
+                  </a>
+                
+                </div>
+              
+              </div>
+            
+            </article>
+          
+          </div>
+        
+        </div>
+      
+      </main>
+    
+    </div>
+  
+  </body>
+
+</html>

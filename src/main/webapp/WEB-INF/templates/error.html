@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  
+  <head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    
+    <title th:text="${errorTitle + ' - Bushraat'}">
+      Page not found - Bushraat
+    </title>
+    
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--sans), serif;
+      }
+      
+      .error {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 24px;
+      }
+      
+      .code {
+        font: 72px var(--serif);
+        color: var(--accent);
+        margin-bottom: 10px;
+        line-height: 1;
+      }
+      
+      .error h1 {
+        font: normal 28px var(--serif);
+        margin: 0 0 10px;
+      }
+      
+      .error p {
+        color: var(--ink-soft);
+        margin: 0 0 28px;
+        max-width: 500px;
+        line-height: 1.6;
+      }
+      
+      .error-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 20px;
+        border-radius: 3px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background-color 0.2s ease,
+        opacity 0.2s ease;
+      }
+      
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+      }
+      
+      .btn-primary:hover {
+        opacity: 0.9;
+      }
+      
+      .btn-secondary {
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid var(--border);
+      }
+      
+      .btn-secondary:hover {
+        background: #f1f0ec;
+      }
+      
+      @media (max-width: 480px) {
+        
+        .code {
+          font-size: 60px;
+        }
+        
+        .error h1 {
+          font-size: 25px;
+        }
+        
+        .error-actions {
+          width: 100%;
+          flex-direction: column;
+        }
+        
+        .btn {
+          width: 100%;
+          max-width: 280px;
+        }
+      }
+    </style>
+  </head>
+  
+  <body>
+    
+    <main class="error">
+      
+      <div class="code" th:text="${errorCode}">404</div>
+      
+      <h1 th:text="${errorTitle}">Page not found</h1>
+      
+      <p th:text="${errorMessage}">We couldn't find the page or resource you're looking for.</p>
+      
+      <div class="error-actions">
+        
+        <a class="btn btn-primary" th:href="${errorPrimaryUrl}" th:text="${errorPrimaryText}">
+          Browse the library
+        </a>
+        
+        <a class="btn btn-secondary" th:href="${errorSecondaryUrl}" th:text="${errorSecondaryText}">
+          Go back
+        </a>
+      
+      </div>
+    
+    </main>
+  
+  </body>
+
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  
+  <head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <title>Profile - Bushraat</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    
+    <style>
+      .profile-layout {
+        display: flex;
+        gap: 40px;
+        align-items: flex-start;
+      }
+      
+      .profile-card {
+        width: 240px;
+        flex-shrink: 0;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 30px 24px;
+        text-align: center;
+      }
+      
+      .avatar {
+        width: 66px;
+        height: 66px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        font-family: var(--serif), serif;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+      }
+      
+      .profile-card h2 {
+        font-size: 16px;
+        margin: 0 0 3px;
+      }
+      
+      .profile-card .email {
+        font-size: 13.5px;
+        color: var(--ink-soft);
+        margin: 0 0 18px;
+        word-break: break-word;
+      }
+      
+      .profile-card .since {
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+        margin: 0 0 18px;
+      }
+      
+      .form-panel {
+        flex: 1;
+        min-width: 0;
+        max-width: 460px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 32px;
+      }
+      
+      .form-panel h2 {
+        font-family: var(--serif), serif;
+        font-weight: normal;
+        font-size: 18px;
+        margin: 0 0 24px;
+      }
+      
+      .form-panel hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 8px 0 24px;
+      }
+      
+      .form-panel .hint {
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        margin: -12px 0 20px;
+      }
+      
+      .profile-card .btn {
+        width: 100%;
+      }
+      
+      @media (max-width: 720px) {
+        
+        .profile-layout {
+          flex-direction: column;
+        }
+        
+        .profile-card {
+          width: 100%;
+        }
+        
+        .form-panel {
+          max-width: none;
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  
+  <body>
+    
+    <div class="layout">
+      
+      <aside th:replace="~{fragments/sidebar :: sidebar('profile')}"></aside>
+      
+      <main class="main">
+        
+        <div class="content">
+          
+          <div class="page-head">
+            
+            <h1>Profile</h1>
+          
+          </div>
+          
+          <div class="profile-layout">
+            
+            <div class="profile-card">
+              
+              <div class="avatar" th:text="${#strings.toUpperCase(#strings.substring(user.name, 0, 1))}">J</div>
+              
+              <h2 th:text="${user.name}">Jane Doe</h2>
+              
+              <p class="email" th:text="${user.email}">jane@example.com</p>
+              
+              <p class="since">
+                Member since
+                <span th:text="${#temporals.format(user.createdAt, 'yyyy')}">2024</span>
+              </p>
+              
+              <form method="post" th:action="@{/logout}">
+                
+                <button class="btn btn-ghost btn-sm btn-muted" type="submit">Sign out</button>
+              
+              </form>
+            
+            </div>
+            
+            <div class="form-panel">
+              
+              <h2>Account details</h2>
+              
+              <div class="message error" th:if="${error}" th:text="${error}"></div>
+              
+              <div class="message success" th:if="${param.updated}">Your profile has been updated.</div>
+              
+              <form method="post" th:action="@{/profile}">
+                
+                <div class="field">
+                  
+                  <label for="name">Name</label>
+                  <input id="name" name="name" required th:value="${user.name}" type="text">
+                
+                </div>
+                
+                <div class="field">
+                  
+                  <label for="email">Email</label>
+                  <input id="email" name="email" required th:value="${user.email}" type="email">
+                
+                </div>
+                
+                <hr>
+                
+                <div class="field">
+                  
+                  <label for="password">New password</label>
+                  
+                  <div class="password-wrapper">
+                    
+                    <input id="password" name="password" placeholder="Leave blank to keep your current password"
+                           type="password">
+                    
+                    <button aria-label="Show password" class="password-toggle" data-target="password" type="button">
+                      
+                      <svg aria-hidden="true" viewBox="0 0 24 24">
+                        
+                        <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/>
+                        <circle cx="12" cy="12" r="2.5"/>
+                      
+                      </svg>
+                    
+                    </button>
+                  
+                  </div>
+                
+                </div>
+                
+                <p class="hint">Use at least 8 characters.</p>
+                
+                <button class="btn" type="submit">Save changes</button>
+              
+              </form>
+            
+            </div>
+          
+          </div>
+        
+        </div>
+      
+      </main>
+    
+    </div>
+    
+    <script th:src="@{/js/main.js}"></script>
+  
+  </body>
+
+</html>

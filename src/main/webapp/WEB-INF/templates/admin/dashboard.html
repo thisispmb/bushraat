@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  
+  <head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <title>Admin dashboard - Bushraat</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    
+    <style>
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 44px;
+      }
+      
+      .stat {
+        flex: 1;
+        min-width: 150px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 18px 20px;
+      }
+      
+      .stat .value {
+        font-family: var(--serif), serif;
+        font-size: 28px;
+        margin: 0 0 2px;
+      }
+      
+      .stat .label {
+        font-size: 13px;
+        color: var(--ink-soft);
+        margin: 0;
+      }
+      
+      section + section {
+        margin-top: 48px;
+      }
+      
+      .form-card {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 24px;
+        margin-bottom: 24px;
+      }
+      
+      .form-card h3 {
+        font-family: var(--serif), serif;
+        font-weight: normal;
+        font-size: 17px;
+        margin: 0 0 18px;
+      }
+      
+      .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 16px;
+      }
+      
+      .form-card .btn {
+        width: auto;
+        padding: 10px 20px;
+      }
+      
+      .cancel-link {
+        font-size: 13.5px;
+        color: var(--ink-soft);
+        text-decoration: none;
+        margin-left: 12px;
+      }
+      
+      .cancel-link:hover {
+        color: var(--accent);
+      }
+      
+      .field textarea,
+      .field select {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 10px 12px;
+        font-family: var(--sans), serif;
+        font-size: 14px;
+        background: var(--surface);
+        color: var(--ink);
+      }
+      
+      .field textarea {
+        resize: vertical;
+      }
+      
+      .field small {
+        display: block;
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--ink-soft);
+      }
+      
+      .row-actions form {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .row-actions select {
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 8px 10px;
+        font-family: var(--sans), sans-serif;
+        font-size: 13px;
+        background: var(--surface);
+        color: var(--ink);
+      }
+      
+      @media (max-width: 600px) {
+        .stats {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  
+  <body>
+    
+    <div class="layout">
+      
+      <aside th:replace="~{fragments/admin-sidebar :: sidebar}"></aside>
+      
+      <main class="main">
+        
+        <div class="content">
+          
+          <div class="page-head">
+            <h1>Admin dashboard</h1>
+            <p>Manage the book catalog and your members from one place.</p>
+          </div>
+          
+          <div class="stats">
+            
+            <div class="stat">
+              <p class="value" th:text="${books != null ? books.size() : 0}">6</p>
+              <p class="label">Books in catalog</p>
+            </div>
+            
+            <div class="stat">
+              <p class="value" th:text="${members != null ? members.size() : 0}">3</p>
+              <p class="label">Members</p>
+            </div>
+            
+            <div class="stat">
+              <p class="value" th:text="${totalSaves != null ? totalSaves : 0}">12</p>
+              <p class="label">Books saved in total</p>
+            </div>
+          
+          </div>
+          
+          <section>
+            
+            <div class="section-head">
+              <h2>Books</h2>
+              <span th:text="${books != null ? books.size() : 0} + ' total'">0 total</span>
+            </div>
+            
+            <div class="form-card">
+              
+              <h3>Add a category</h3>
+              
+              <form method="post" th:action="@{/admin/categories}">
+                
+                <div class="form-row">
+                  
+                  <div class="field">
+                    <label for="categoryName">Name</label>
+                    <input id="categoryName" name="name" placeholder="e.g. Programming" required type="text">
+                  </div>
+                
+                </div>
+                
+                <button class="btn" type="submit">Add category</button>
+              
+              </form>
+            
+            </div>
+            
+            <div class="form-card">
+              
+              <h3 th:text="${editingBook != null} ? 'Edit book' : 'Add a book'">Add a book</h3>
+              
+              <form enctype="multipart/form-data" id="bookForm" method="post"
+                    th:action="${editingBook != null} ? @{/admin/books/{id}/edit(id=${editingBook.id})} : @{/admin/books}">
+                
+                <div class="form-row">
+                  
+                  <div class="field">
+                    <label for="title">Title</label>
+                    <input id="title" name="title" required
+                           th:value="${editingBook != null ? editingBook.title : ''}"
+                           type="text">
+                  </div>
+                  
+                  <div class="field">
+                    <label for="author">Author</label>
+                    <input id="author" name="author" required
+                           th:value="${editingBook != null ? editingBook.author : ''}"
+                           type="text">
+                  </div>
+                  
+                  <div class="field">
+                    
+                    <label for="categoryId">Category</label>
+                    
+                    <select id="categoryId" name="categoryId" required>
+                      <option value="">Select category</option>
+                      <option th:each="category : ${categories}"
+                              th:selected="${editingBook != null and editingBook.category != null and editingBook.category.id == category.id}"
+                              th:text="${category.name}" th:value="${category.id}">Programming
+                      </option>
+                    </select>
+                  
+                  </div>
+                
+                </div>
+                
+                <div class="field">
+                  
+                  <label for="description">Description</label>
+                  
+                  <textarea id="description" name="description"
+                            placeholder="A short summary shown on the book's page" rows="4"
+                            th:text="${editingBook != null ? editingBook.description : ''}"></textarea>
+                
+                </div>
+                
+                <div class="field">
+                  
+                  <label for="cover">Cover image</label>
+                  <input accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                         id="cover" name="cover" type="file">
+                  
+                  <small
+                      th:text="${editingBook != null} ? 'JPG, PNG or WEBP. Leave blank to keep the current cover.' : 'JPG, PNG or WEBP. Optional.'">
+                    JPG, PNG or WEBP. Optional.
+                  </small>
+                
+                </div>
+                
+                <div class="field">
+                  
+                  <label for="file">Book file</label>
+                  <input accept=".pdf,application/pdf" id="file" name="file"
+                         th:required="${editingBook == null}"
+                         type="file">
+                  
+                  <small th:text="${editingBook != null}
+                                ? 'PDF, maximum 50 MB. Leave blank to keep the current file.'
+                                : 'PDF, maximum 50 MB.'">
+                    PDF, maximum 50 MB.
+                  </small>
+                
+                </div>
+                
+                <button class="btn"
+                        th:text="${editingBook != null} ? 'Save changes' : 'Add book'"
+                        type="submit">
+                  Add book
+                </button>
+                
+                <a class="cancel-link" th:href="@{/admin}" th:if="${editingBook != null}">Cancel</a>
+              
+              </form>
+            
+            </div>
+            
+            <div class="table-wrap">
+              
+              <table class="table">
+                
+                <tr>
+                  <th>Title</th>
+                  <th>Author</th>
+                  <th>Category</th>
+                  <th>Format</th>
+                  <th></th>
+                </tr>
+                
+                <tr th:each="book : ${books}">
+                  
+                  <td th:text="${book.title}">Introduction to Programming</td>
+                  <td th:text="${book.author}">John Smith</td>
+                  <td th:text="${book.category != null ? book.category.name : 'Uncategorized'}">
+                    Programming
+                  </td>
+                  <td th:text="${book.fileType}">PDF</td>
+                  
+                  <td>
+                    
+                    <div class="row-actions">
+                      
+                      <a class="btn btn-ghost btn-sm" th:href="@{/admin(edit=${book.id})}">Edit</a>
+                      
+                      <form method="post" th:action="@{/admin/books/{id}/delete(id=${book.id})}">
+                        
+                        <button class="btn btn-ghost btn-sm btn-danger" type="submit">Delete</button>
+                      
+                      </form>
+                    
+                    </div>
+                  
+                  </td>
+                
+                </tr>
+              
+              </table>
+            
+            </div>
+          
+          </section>
+          
+          <section>
+            
+            <div class="section-head">
+              <h2>Members</h2>
+              <span th:text="${members != null ? members.size() : 0} + ' total'">3 total</span>
+            </div>
+            
+            <div class="table-wrap">
+              
+              <table class="table">
+                
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Joined</th>
+                  <th>Role</th>
+                  <th></th>
+                </tr>
+                
+                <tr th:each="member : ${members}">
+                  
+                  <td th:text="${member.name}">Jane Doe</td>
+                  <td th:text="${member.email}">jane@example.com</td>
+                  <td th:text="${#temporals.format(member.createdAt, 'dd MMM yyyy')}">05 Sep 2026</td>
+                  
+                  <td>
+                    
+                    <span th:switch="${member.role}">
+                      <span th:case="'SUPER_ADMIN'">Super Administrator</span>
+                      <span th:case="'LIBRARIAN'">Librarian</span>
+                      <span th:case="*">User</span>
+                    </span>
+                  
+                  </td>
+                  
+                  <td>
+                    
+                    <div class="row-actions">
+                      
+                      <form method="post"
+                            th:action="@{/admin/members/{id}/role(id=${member.id})}"
+                            th:if="${isSuperAdmin and member.id != user.id}">
+                        
+                        <select aria-label="Change user role" name="role">
+                          
+                          <option th:selected="${member.role == 'USER'}" value="USER">User</option>
+                          <option th:selected="${member.role == 'LIBRARIAN'}" value="LIBRARIAN">Librarian</option>
+                          <option th:selected="${member.role == 'SUPER_ADMIN'}" value="SUPER_ADMIN">Super Admin</option>
+                        
+                        </select>
+                        
+                        <button class="btn btn-ghost btn-sm" type="submit">Save role</button>
+                      
+                      </form>
+                      
+                      <form method="post"
+                            th:action="@{/admin/members/{id}/delete(id=${member.id})}"
+                            th:if="${member.id != user.id and (isSuperAdmin or member.role == 'USER')}">
+                        
+                        <button class="btn btn-ghost btn-sm btn-danger" type="submit">Remove</button>
+                      
+                      </form>
+                    
+                    </div>
+                  
+                  </td>
+                
+                </tr>
+              
+              </table>
+            
+            </div>
+          
+          </section>
+        
+        </div>
+      
+      </main>
+    
+    </div>
+  
+  </body>
+
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  
+  <body>
+    
+    <aside class="sidebar" th:fragment="sidebar">
+      
+      <div class="brand">
+        
+        <svg fill="none" height="20" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" width="20">
+          
+          <path d="M6 3h9a3 3 0 0 1 3 3v15l-6-3.5L6 21V3z"/>
+        
+        </svg>
+        
+        Bushraat
+      
+      </div>
+      
+      <nav class="nav">
+        
+        <a class="nav-link active" th:href="@{/admin}">
+          
+          <svg fill="none" height="17" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" width="17">
+            
+            <rect height="7" rx="1" width="7" x="4" y="4"/>
+            <rect height="7" rx="1" width="7" x="13" y="4"/>
+            <rect height="7" rx="1" width="7" x="4" y="13"/>
+            <rect height="7" rx="1" width="7" x="13" y="13"/>
+          
+          </svg>
+          
+          <span>Admin dashboard</span>
+        
+        </a>
+        
+        <a class="nav-link"
+           th:href="@{/dashboard}">
+          
+          <svg fill="none" height="17" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" width="17">
+            
+            <path d="M15 18l-6-6 6-6"/>
+          
+          </svg>
+          
+          <span>Back to library</span>
+        
+        </a>
+      
+      </nav>
+    
+    </aside>
+  
+  </body>
+
+</html>
