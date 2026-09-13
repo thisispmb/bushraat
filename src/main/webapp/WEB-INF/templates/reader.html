@@ -139,7 +139,7 @@
     </style>
   </head>
   
-  <body>
+  <body oncontextmenu="return false;">
     
     <div class="reader-progress">
       
@@ -218,7 +218,13 @@
             Number(pdfFrame.dataset.page) || 1
         );
         
-        pdfFrame.src = pdfUrl + '#page=' + savedPage;
+        const viewerUrl =
+            /*[[@{/pdfjs/web/viewer.html}]]*/ '/pdfjs/web/viewer.html';
+        
+        pdfFrame.src =
+            viewerUrl +
+            '?file=' + encodeURIComponent(pdfUrl) +
+            '#page=' + savedPage;
       }
       
       const save =

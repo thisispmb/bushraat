@@ -1,0 +1,6 @@
+#printButton,
+#downloadButton,
+#secondaryPrint,
+#secondaryDownload {
+    display: none !important;
+}

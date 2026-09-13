@@ -24,15 +24,40 @@
         <url-pattern>/images/*</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/pdfjs/*</url-pattern>
+    </servlet-mapping>
 
 
     <!-- Application-owned error handling. Never expose Tomcat's default error pages. -->
-    <error-page><error-code>400</error-code><location>/error</location></error-page>
-    <error-page><error-code>403</error-code><location>/error</location></error-page>
-    <error-page><error-code>404</error-code><location>/error</location></error-page>
-    <error-page><error-code>405</error-code><location>/error</location></error-page>
-    <error-page><error-code>413</error-code><location>/error</location></error-page>
-    <error-page><error-code>415</error-code><location>/error</location></error-page>
-    <error-page><error-code>500</error-code><location>/error</location></error-page>
+    <error-page>
+        <error-code>400</error-code>
+        <location>/error</location>
+    </error-page>
+    <error-page>
+        <error-code>403</error-code>
+        <location>/error</location>
+    </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error</location>
+    </error-page>
+    <error-page>
+        <error-code>405</error-code>
+        <location>/error</location>
+    </error-page>
+    <error-page>
+        <error-code>413</error-code>
+        <location>/error</location>
+    </error-page>
+    <error-page>
+        <error-code>415</error-code>
+        <location>/error</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/error</location>
+    </error-page>
 
 </web-app>
