@@ -169,6 +169,25 @@
         transform: translateX(2px);
       }
       
+      .reading-clear-form {
+        margin-top: 8px;
+        text-align: center;
+      }
+      
+      .reading-clear {
+        border: 0;
+        background: none;
+        color: var(--ink-soft);
+        padding: 4px 8px;
+        font: inherit;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      
+      .reading-clear:hover {
+        color: var(--accent);
+      }
+      
       @media (max-width: 760px) {
         .reading-grid {
           grid-template-columns: 1fr;
@@ -273,6 +292,13 @@
                     </svg>
                   
                   </a>
+                  
+                  <form class="reading-clear-form" method="post" th:action="@{/progress/clear}">
+                    
+                    <input name="bookId" th:value="${book.id}" type="hidden">
+                    <button class="reading-clear" type="submit">Clear progress</button>
+                  
+                  </form>
                 
                 </div>
               

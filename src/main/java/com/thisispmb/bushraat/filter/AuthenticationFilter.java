@@ -20,7 +20,8 @@ import java.io.IOException;
         "/favorites/*",
         "/profile",
         "/profile/*",
-        "/progress"
+        "/progress",
+        "/progress/clear"
 })
 public class AuthenticationFilter implements Filter {
 

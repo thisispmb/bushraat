@@ -34,6 +34,23 @@ public class ReadingProgressRepository {
         }
     }
 
+    public void delete(Long userId, Long bookId) throws SQLException {
+
+        String sql = """
+                DELETE FROM reading_progress
+                WHERE user_id = ? AND book_id = ?
+                """;
+
+        try (Connection connection = Db.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setLong(1, userId);
+            statement.setLong(2, bookId);
+
+            statement.executeUpdate();
+        }
+    }
+
     public ReadingProgress findByUserAndBook(
             Long userId,
             Long bookId) throws SQLException {
