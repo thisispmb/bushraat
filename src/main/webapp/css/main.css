@@ -1939,3 +1939,419 @@ main.error .error-actions .btn {
         transition: none !important;
     }
 }
+
+
+/* responsive refinements
+   Layout and presentation only. No application or template logic is changed. */
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+img,
+svg,
+iframe {
+    max-width: 100%;
+}
+
+input,
+select,
+textarea,
+button {
+    max-width: 100%;
+}
+
+@media (max-width: 860px) {
+    .main {
+        min-width: 0;
+    }
+
+    .content {
+        width: 100%;
+    }
+
+    .book-grid {
+        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .hero {
+        padding-top: 42px;
+        padding-bottom: 64px;
+    }
+
+    /* The landing-page book artwork is intentionally hidden on smaller screens. */
+    .hero-visual {
+        display: none;
+    }
+
+    .hero-copy {
+        width: 100%;
+        text-align: center;
+    }
+
+    .hero-copy h1,
+    .hero-copy p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .features {
+        padding-top: 52px;
+        padding-bottom: 52px;
+    }
+
+    .features-inner {
+        gap: 32px;
+    }
+
+    .feature {
+        min-width: 0;
+    }
+
+    .profile-layout {
+        width: 100%;
+    }
+
+    .form-panel {
+        width: 100%;
+    }
+}
+
+@media (max-width: 620px) {
+    .main {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .page-head {
+        margin-bottom: 30px;
+    }
+
+    .section-head {
+        align-items: flex-start;
+    }
+
+    .book-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px 14px;
+    }
+
+    .book-cover {
+        padding: 12px;
+    }
+
+    .book-title {
+        overflow-wrap: anywhere;
+    }
+
+    .book-author {
+        overflow-wrap: anywhere;
+    }
+
+    .stats {
+        gap: 12px;
+        margin-bottom: 32px;
+    }
+
+    .stat {
+        padding: 17px;
+    }
+
+    .form-card {
+        padding: 18px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-card .btn {
+        width: 100%;
+    }
+
+    .cancel-link {
+        margin-top: 10px;
+        margin-left: 0;
+    }
+
+    .profile-card,
+    .form-panel {
+        padding: 24px 18px;
+    }
+
+    .book-info .actions .btn,
+    .book-info .actions form {
+        max-width: 100%;
+    }
+
+    .toolbar {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .toolbar-title h1 {
+        max-width: 58vw;
+    }
+
+    .pdf-progress {
+        max-width: calc(100vw - 20px);
+    }
+}
+
+@media (max-width: 480px) {
+    .topbar {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .topbar .actions {
+        gap: 8px;
+    }
+
+    .topbar .actions .btn {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .hero {
+        padding: 34px 18px 54px;
+    }
+
+    .hero-copy h1 {
+        max-width: 100%;
+        font-size: 34px;
+    }
+
+    .hero-copy p {
+        font-size: 15px;
+    }
+
+    .features {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .features-inner {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .feature p {
+        max-width: none;
+    }
+
+    .cta-band {
+        padding: 52px 18px;
+    }
+
+    .cta-band h2 {
+        font-size: 25px;
+    }
+
+    .auth {
+        padding: 28px 14px;
+    }
+
+    .auth-panel {
+        max-width: 100%;
+        padding: 24px 18px;
+    }
+
+    .book-grid {
+        gap: 18px 12px;
+    }
+
+    .book-cover {
+        border-radius: 8px;
+    }
+
+    .reading-card {
+        width: 100%;
+    }
+
+    .reading-cover {
+        min-height: 210px;
+    }
+
+    .book-cover-large {
+        max-width: 210px;
+    }
+
+    .meta-row {
+        width: 100%;
+    }
+
+    .pdf-progress {
+        right: 8px;
+        bottom: 8px;
+        left: 8px;
+        padding: 6px;
+    }
+
+    .pdf-progress label {
+        display: none;
+    }
+
+    .pdf-progress input {
+        flex: 1;
+        min-width: 0;
+        width: auto;
+    }
+
+    .pdf-progress button {
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 360px) {
+    .main {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .topbar {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .topbar .brand {
+        font-size: 18px;
+    }
+
+    .topbar .actions .btn {
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: 13px;
+    }
+
+    .hero-copy h1 {
+        font-size: 30px;
+    }
+
+    .book-grid {
+        gap: 16px 10px;
+    }
+
+    .book-cover {
+        padding: 10px;
+    }
+
+    .book-title {
+        font-size: 13.5px;
+    }
+
+    .book-author {
+        font-size: 12.5px;
+    }
+
+    .form-card,
+    .profile-card,
+    .form-panel {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .toolbar-title h1 {
+        max-width: 50vw;
+    }
+}
+
+/* mobile navigation */
+.mobile-menu-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--ink);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.mobile-menu-toggle:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+.mobile-menu-toggle svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+
+@media (max-width: 760px) {
+    .sidebar {
+        position: relative;
+        z-index: 20;
+        flex-wrap: wrap;
+        row-gap: 12px;
+    }
+
+    .mobile-menu-toggle {
+        display: inline-flex;
+        margin-left: auto;
+    }
+
+    .sidebar .nav {
+        order: 3;
+        flex: 0 0 100%;
+        width: 100%;
+        display: none !important;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+        margin: 4px 0 0;
+        padding: 10px 0 0;
+        border-top: 1px solid var(--border);
+    }
+
+    .sidebar.nav-open .nav {
+        display: flex !important;
+    }
+
+    .sidebar .nav-link {
+        display: flex;
+        width: 100%;
+        margin: 0;
+        padding: 12px;
+        box-sizing: border-box;
+    }
+
+    .sidebar .nav-link span {
+        display: inline !important;
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .sidebar .nav-link svg {
+        display: block;
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .sidebar .nav-link:last-child {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        padding: 14px 16px;
+    }
+
+    .mobile-menu-toggle {
+        width: 38px;
+        height: 38px;
+    }
+}

@@ -17,6 +17,18 @@
       
       </div>
       
+      <button class="mobile-menu-toggle"
+              type="button"
+              aria-label="Open navigation"
+              aria-expanded="false"
+              onclick="const sidebar=this.closest('.sidebar'); const open=sidebar.classList.toggle('nav-open'); this.setAttribute('aria-expanded', open); this.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');">
+        <svg fill="none" height="20" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" viewBox="0 0 24 24" width="20" aria-hidden="true">
+          <path d="M4 7h16"/>
+          <path d="M4 12h16"/>
+          <path d="M4 17h16"/>
+        </svg>
+      </button>
+
       <nav class="nav">
         
         <a class="nav-link" th:classappend="${page == 'home'} ? ' active'" th:href="@{/dashboard}">
