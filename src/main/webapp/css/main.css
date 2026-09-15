@@ -2355,3 +2355,14 @@ button {
         height: 38px;
     }
 }
+
+/* landing page: keep sign-in as the primary top action on small screens */
+@media (max-width: 560px) {
+    .topbar .actions a.link {
+        display: inline;
+    }
+
+    .topbar .actions .btn {
+        display: none;
+    }
+}
