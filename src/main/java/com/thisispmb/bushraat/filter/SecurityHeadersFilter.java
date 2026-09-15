@@ -8,14 +8,12 @@ import java.io.IOException;
 
 // Adds conservative browser security headers
 // to every application response.
-
 @WebFilter("/*")
 public class SecurityHeadersFilter implements Filter {
 
     @Override
     public void doFilter(
-            ServletRequest request,
-            ServletResponse response,
+            ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
 
         HttpServletResponse http = (HttpServletResponse) response;

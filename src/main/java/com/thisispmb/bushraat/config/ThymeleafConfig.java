@@ -27,7 +27,6 @@ public final class ThymeleafConfig {
         resolver.setCacheable(true);
 
         TemplateEngine templateEngine = new TemplateEngine();
-
         templateEngine.setTemplateResolver(resolver);
 
         return templateEngine;

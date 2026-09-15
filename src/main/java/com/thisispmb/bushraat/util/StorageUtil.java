@@ -11,6 +11,11 @@ public final class StorageUtil {
         Path root = Path.of("C:\\Users\\App\\IdeaProjects\\bushraat\\uploads")
                 .toAbsolutePath().normalize();
 
+        // For general OS
+//        Path root = Path.of(System.getProperty("user.home"), "bushraat", "uploads")
+//                .toAbsolutePath()
+//                .normalize();
+
         try {
             Files.createDirectories(root);
         } catch (Exception e) {
