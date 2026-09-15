@@ -3,7 +3,8 @@ package com.thisispmb.bushraat.web;
 import com.thisispmb.bushraat.model.Book;
 import com.thisispmb.bushraat.repository.BookRepository;
 import com.thisispmb.bushraat.repository.FavoriteRepository;
-import com.thisispmb.bushraat.util.StorageUtil;
+import com.thisispmb.bushraat.storage.StorageObject;
+import com.thisispmb.bushraat.storage.StorageService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,8 +14,6 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 @WebServlet(urlPatterns = {
         "/books",
@@ -23,10 +22,12 @@ import java.nio.file.Path;
 public class BookServlet extends ThymeleafServlet {
     private final BookRepository bookRepository;
     private final FavoriteRepository favoriteRepository;
+    private final StorageService storage;
 
     public BookServlet() {
         this.bookRepository = new BookRepository();
         this.favoriteRepository = new FavoriteRepository();
+        this.storage = StorageService.create();
     }
 
     @Override
@@ -39,6 +40,15 @@ public class BookServlet extends ThymeleafServlet {
         if (pathInfo != null && pathInfo.endsWith("/cover")) {
             try {
                 serveCover(request, response, pathInfo);
+            } catch (software.amazon.awssdk.services.s3.model.NoSuchKeyException e) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            } catch (software.amazon.awssdk.services.s3.model.S3Exception e) {
+                if (e.statusCode() == HttpServletResponse.SC_NOT_FOUND) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                } else {
+                    throw new ServletException("Unable to load book cover.", e);
+                }
+
             } catch (Exception e) {
                 throw new ServletException("Unable to load book cover.", e);
             }
@@ -126,27 +136,17 @@ public class BookServlet extends ThymeleafServlet {
             return;
         }
 
-        Path file =
-                StorageUtil.resolveStoredPath(book.getCoverImagePath());
-
-        if (!Files.exists(file) || !Files.isRegularFile(file)) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-
-        String contentType = Files.probeContentType(file);
-
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
-
-        response.setContentType(contentType);
-        response.setContentLengthLong(Files.size(file));
-
-        try (InputStream input = Files.newInputStream(file);
+        try (StorageObject object = storage.open(book.getCoverImagePath());
+             InputStream input = object.stream();
              OutputStream output = response.getOutputStream()) {
 
+            response.setContentType(object.contentType());
+            response.setContentLengthLong(object.contentLength());
+            response.setHeader("Cache-Control", "private, max-age=3600");
             input.transferTo(output);
+
+        } catch (java.io.FileNotFoundException e) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 }

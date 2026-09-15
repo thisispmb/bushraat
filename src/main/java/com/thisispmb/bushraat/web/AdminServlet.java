@@ -8,7 +8,7 @@ import com.thisispmb.bushraat.repository.CategoryRepository;
 import com.thisispmb.bushraat.repository.UserRepository;
 import com.thisispmb.bushraat.security.Authorization;
 import com.thisispmb.bushraat.security.Role;
-import com.thisispmb.bushraat.util.StorageUtil;
+import com.thisispmb.bushraat.storage.StorageService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,10 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.UUID;
 
 @WebServlet(urlPatterns = {"/admin", "/admin/*"})
 @MultipartConfig(maxFileSize = 50L * 1024 * 1024, maxRequestSize = 60L * 1024 * 1024)
@@ -29,6 +26,9 @@ public class AdminServlet extends ThymeleafServlet {
     private final CategoryRepository categoryRepository = new CategoryRepository();
     private final UserRepository userRepository = new UserRepository();
     private final AdminRepository adminRepository = new AdminRepository();
+    private StorageService storage() {
+        return StorageService.create();
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -100,8 +100,10 @@ public class AdminServlet extends ThymeleafServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid identifier.");
         } catch (UnsupportedMediaTypeException e) {
             resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, e.getMessage());
+        } catch (ForbiddenException e) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
         } catch (IllegalArgumentException e) {
-            resp.sendError(400, e.getMessage());
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
             throw new ServletException("Admin operation failed.", e);
         }
@@ -162,10 +164,10 @@ public class AdminServlet extends ThymeleafServlet {
 
             bookRepository.save(b);
         } catch (Exception e) {
-            deleteQuietly(bookUpload.file);
+            deleteQuietly(bookUpload.path);
 
             if (coverUpload != null) {
-                deleteQuietly(coverUpload.file);
+                deleteQuietly(coverUpload.path);
             }
 
             throw e;
@@ -221,22 +223,22 @@ public class AdminServlet extends ThymeleafServlet {
             bookRepository.update(b);
         } catch (Exception e) {
             if (newBook != null) {
-                deleteQuietly(newBook.file);
+                deleteQuietly(newBook.path);
             }
 
             if (newCover != null) {
-                deleteQuietly(newCover.file);
+                deleteQuietly(newCover.path);
             }
 
             throw e;
         }
 
         if (newBook != null) {
-            deleteQuietly(StorageUtil.resolveStoredPath(oldBook));
+            deleteQuietly(oldBook);
         }
 
         if (newCover != null) {
-            deleteQuietly(StorageUtil.resolveStoredPath(oldCover));
+            deleteQuietly(oldCover);
         }
 
         resp.sendRedirect(req.getContextPath() + "/admin");
@@ -254,8 +256,8 @@ public class AdminServlet extends ThymeleafServlet {
 
         bookRepository.delete(id);
 
-        deleteQuietly(StorageUtil.resolveStoredPath(b.getFilePath()));
-        deleteQuietly(StorageUtil.resolveStoredPath(b.getCoverImagePath()));
+        deleteQuietly(b.getFilePath());
+        deleteQuietly(b.getCoverImagePath());
 
         resp.sendRedirect(req.getContextPath() + "/admin");
     }
@@ -308,7 +310,7 @@ public class AdminServlet extends ThymeleafServlet {
         Role role = Authorization.currentRole(req);
 
         if (role == null || !role.canAccessAdmin()) {
-            throw new IllegalArgumentException("Administrator privileges required.");
+            throw new ForbiddenException("Administrator privileges required.");
         }
 
         return role;
@@ -316,7 +318,7 @@ public class AdminServlet extends ThymeleafServlet {
 
     private void requireSuperAdmin(HttpServletRequest req) throws Exception {
         if (!Authorization.isSuperAdmin(req)) {
-            throw new IllegalArgumentException(
+            throw new ForbiddenException(
                     "Super Administrator privileges required."
             );
         }
@@ -354,51 +356,36 @@ public class AdminServlet extends ThymeleafServlet {
     }
 
     private StoredUpload storeBook(Part p) throws Exception {
-        String n = p.getSubmittedFileName();
-
-        if (n == null) {
-            throw new IllegalArgumentException("Book file is required.");
+        try {
+            String path = storage().storeBook(p);
+            return new StoredUpload(path, "PDF");
+        } catch (com.thisispmb.bushraat.storage.StorageService.UnsupportedMediaTypeException e) {
+            throw new UnsupportedMediaTypeException(e.getMessage());
         }
-
-        String l = n.toLowerCase();
-        String type = l.endsWith(".pdf") ? "PDF" : null;
-
-        if (type == null) {
-            throw new UnsupportedMediaTypeException("Only PDF books are supported.");
-        }
-
-        Path f = StorageUtil.books().resolve(UUID.randomUUID() + ".pdf");
-        p.write(f.toString());
-
-        return new StoredUpload("/uploads/books/" + f.getFileName(), type, f);
     }
 
     private StoredUpload storeCover(Part p) throws Exception {
-        String n = p.getSubmittedFileName();
-
-        if (n == null) {
-            throw new IllegalArgumentException("Invalid cover image.");
+        try {
+            return new StoredUpload(storage().storeCover(p), null);
+        } catch (com.thisispmb.bushraat.storage.StorageService.UnsupportedMediaTypeException e) {
+            throw new UnsupportedMediaTypeException(e.getMessage());
         }
-
-        String l = n.toLowerCase();
-        String ext = l.endsWith(".jpg") || l.endsWith(".jpeg")
-                ? ".jpg" : l.endsWith(".png") ? ".png" : l.endsWith(".webp")
-                ? ".webp" : null;
-
-        if (ext == null) {
-            throw new IllegalArgumentException("Cover must be JPG, PNG or WEBP.");
-        }
-
-        Path f = StorageUtil.covers().resolve(UUID.randomUUID() + ext);
-        p.write(f.toString());
-        
-        return new StoredUpload("/uploads/covers/" + f.getFileName(), null, f);
     }
 
-    private void deleteQuietly(Path p) {
-        if (p != null) try {
-            Files.deleteIfExists(p);
+    private void deleteQuietly(String objectKey) {
+        if (objectKey == null || objectKey.isBlank()) {
+            return;
+        }
+
+        try {
+            storage().delete(objectKey);
         } catch (Exception ignored) {
+        }
+    }
+
+    private static final class ForbiddenException extends Exception {
+        private ForbiddenException(String message) {
+            super(message);
         }
     }
 
@@ -408,6 +395,6 @@ public class AdminServlet extends ThymeleafServlet {
         }
     }
 
-    private record StoredUpload(String path, String type, Path file) {
+    private record StoredUpload(String path, String type) {
     }
 }

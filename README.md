@@ -1,64 +1,105 @@
 # Bushraat
 
-Bushraat is a server-rendered digital library built with Jakarta Servlets, JDBC, Thymeleaf and PostgreSQL.
+Bushraat is a server-rendered digital library built with **Jakarta Servlets, JDBC, Thymeleaf, and PostgreSQL**. It uses
+**Supabase PostgreSQL** for the database and **Cloudflare R2** for book and cover storage.
 
 ## Stack
 
-- Java 21
-- Jakarta Servlet 6.1 / Tomcat 11+
-- PostgreSQL
-- JDBC + HikariCP
-- Thymeleaf 3.1
-- BCrypt
-- Vanilla JavaScript
+* Java 21
+* Jakarta Servlet 6.1 / Tomcat 11
+* PostgreSQL + JDBC + HikariCP
+* Supabase PostgreSQL
+* Cloudflare R2
+* Thymeleaf
+* Vanilla JavaScript
+* PDF.js
+* BCrypt
 
-## Local setup
+## Storage
 
-1. Create a PostgreSQL database named `bushraat`.
-2. Run `src/main/resources/sql`.
-3. Check `Db.java` and set the local PostgreSQL connection values if they differ from your machine.
-4. Deploy the generated WAR to Tomcat or run it from your IDE.
-5. The application stores uploaded books and covers in `uploads/books` and `uploads/covers` under the configured storage
-   root. Set `-Dbushraat.upload.dir=/absolute/path/to/uploads` to change it.
+```text
+Browser
+   |
+   v
+Jakarta Servlets
+   |----------> Supabase PostgreSQL
+   |
+   +----------> Cloudflare R2
+                 ├── books/
+                 └── covers/
+```
 
-## Main routes
+## Configuration
 
-- `/` landing page
-- `/login`, `/register`
-- `/dashboard`
-- `/saved`
-- `/profile`
-- `/books/{id}`
-- `/read/{id}`
-- `/admin`
-- `/forgot-password`
-- `/reset-password`
+Create `.env` from `.env.example` and set:
 
-## Reader
+```text
+R2_ACCOUNT_ID
+R2_ACCESS_KEY_ID
+R2_SECRET_ACCESS_KEY
+R2_BUCKET_NAME
 
-PDF files are opened using the browser's native PDF viewer. The current PDF page can be saved from the reader toolbar.
-PDF is the only supported book format in the current MVP.
+BUSHRAAT_DB_URL
+BUSHRAAT_DB_USER
+BUSHRAAT_DB_PASSWORD
+```
 
-## Password reset
+`.env` is ignored by Git. **Never commit credentials.**
 
-Because this version is designed to run locally without an email provider, password reset links are generated on the
-reset page for the local installation. The reset token is stored as a SHA-256 hash and expires after 30 minutes.
+For deployment, configure these variables in the hosting provider.
 
-## Security notes
+## Database
 
-- Passwords are stored using BCrypt hashes.
-- Authentication uses HTTP sessions.
-- Admin routes are role protected.
-- Uploaded filenames are replaced with UUIDs.
-- Stored file paths are resolved inside the configured upload root.
+Run:
 
-## Role migration
+```text
+src/main/resources/sql/schema.sql
+```
 
-This version uses three roles: `USER`, `LIBRARIAN`, and `SUPER_ADMIN`.
+Promote the first administrator if needed:
 
-For an existing database, run `src/main/resources/sql` once before deploying. Then promote one or more trusted accounts
-to `SUPER_ADMIN`.
+```sql
+UPDATE users
+SET role = 'SUPER_ADMIN'
+WHERE email = 'your-email@example.com';
+```
 
-The application allows multiple Super Administrators, but server-side transaction locking prevents the last Super
-Administrator from being deleted or demoted. Librarians can manage books/categories and remove only `USER` accounts;
-only Super Administrators can change roles.
+## Run
+
+```bash
+./mvnw clean package
+```
+
+Windows:
+
+```powershell
+.\mvnw.cmd clean package
+```
+
+Deploy:
+
+```text
+target/bushraat-1.0-SNAPSHOT.war
+```
+
+to Tomcat 11.
+
+## Features
+
+* Authentication and profiles
+* Book catalog and search
+* Favorites
+* Continue reading and progress tracking
+* PDF.js reader
+* R2 book and cover storage
+* Admin book/category management
+* Librarian and Super Admin roles
+* Password reset
+* Custom error pages
+
+## Docker
+
+```bash
+docker build -t bushraat .
+docker run --rm -p 8080:8080 --env-file .env bushraat
+```

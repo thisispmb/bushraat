@@ -21,25 +21,24 @@ import java.io.IOException;
         "/profile",
         "/profile/*",
         "/progress",
-        "/progress/clear"
+        "/progress/clear",
+        "/admin",
+        "/admin/*"
 })
 public class AuthenticationFilter implements Filter {
 
     @Override
     public void doFilter(
-            ServletRequest request,
-            ServletResponse response,
+            ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        HttpSession session = httpRequest.getSession(false);
+        HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse resp = (HttpServletResponse) response;
 
-        boolean authenticated =
-                session != null && session.getAttribute("user") != null;
+        HttpSession session = req.getSession(false);
 
-        if (!authenticated) {
-            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
+        if (session == null || session.getAttribute("userId") == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 

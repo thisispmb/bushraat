@@ -3,13 +3,12 @@ package com.thisispmb.bushraat.repository;
 import com.thisispmb.bushraat.security.Role;
 import com.thisispmb.bushraat.util.Db;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class AdminRepository {
-
-    public int countMembers() throws SQLException {
-        return count("SELECT COUNT(*) FROM users");
-    }
 
     public int countTotalSaves() throws SQLException {
         return count("SELECT COUNT(*) FROM favorites");
@@ -34,8 +33,7 @@ public class AdminRepository {
         }
     }
 
-    public void updateMemberRole(Long userId, Role role)
-            throws SQLException {
+    public void updateMemberRole(Long userId, Role role) throws SQLException {
         changeRoleSafely(userId, role);
     }
 
@@ -51,9 +49,7 @@ public class AdminRepository {
 
                 Role role;
 
-                try (PreparedStatement statement =
-                             connection.prepareStatement(selectSql)) {
-
+                try (PreparedStatement statement = connection.prepareStatement(selectSql)) {
                     statement.setLong(1, userId);
 
                     try (ResultSet resultSet = statement.executeQuery()) {
@@ -67,20 +63,17 @@ public class AdminRepository {
 
                 if (role == Role.SUPER_ADMIN) {
                     if (countSuperAdmins(connection) <= 1) {
-                        throw new IllegalArgumentException(
-                                "At least one Super Administrator must remain."
-                        );
+                        throw new IllegalArgumentException("At least one Super Administrator must remain.");
                     }
                 }
 
-                try (PreparedStatement statement =
-                             connection.prepareStatement(deleteSql)) {
-
+                try (PreparedStatement statement = connection.prepareStatement(deleteSql)) {
                     statement.setLong(1, userId);
                     statement.executeUpdate();
                 }
 
                 connection.commit();
+
             } catch (Exception e) {
                 connection.rollback();
 
@@ -93,6 +86,7 @@ public class AdminRepository {
                 }
 
                 throw new SQLException("Unable to delete user.", e);
+
             } finally {
                 connection.setAutoCommit(true);
             }
@@ -120,9 +114,7 @@ public class AdminRepository {
 
                 Role currentRole;
 
-                try (PreparedStatement statement =
-                             connection.prepareStatement(selectSql)) {
-
+                try (PreparedStatement statement = connection.prepareStatement(selectSql)) {
                     statement.setLong(1, userId);
 
                     try (ResultSet resultSet = statement.executeQuery()) {
@@ -130,21 +122,16 @@ public class AdminRepository {
                             throw new IllegalArgumentException("User not found.");
                         }
 
-                        currentRole =
-                                Role.from(resultSet.getString("role"));
+                        currentRole = Role.from(resultSet.getString("role"));
                     }
                 }
 
-                if (currentRole == Role.SUPER_ADMIN
-                        && newRole != Role.SUPER_ADMIN
+                if (currentRole == Role.SUPER_ADMIN && newRole != Role.SUPER_ADMIN
                         && countSuperAdmins(connection) <= 1) {
-                    throw new IllegalArgumentException(
-                            "At least one Super Administrator must remain."
-                    );
+                    throw new IllegalArgumentException("At least one Super Administrator must remain.");
                 }
 
-                try (PreparedStatement statement =
-                             connection.prepareStatement(updateSql)) {
+                try (PreparedStatement statement = connection.prepareStatement(updateSql)) {
 
                     statement.setString(1, newRole.name());
                     statement.setLong(2, userId);
@@ -152,6 +139,7 @@ public class AdminRepository {
                 }
 
                 connection.commit();
+
             } catch (Exception e) {
                 connection.rollback();
 
@@ -164,15 +152,14 @@ public class AdminRepository {
                 }
 
                 throw new SQLException("Unable to change user role.", e);
+
             } finally {
                 connection.setAutoCommit(true);
             }
         }
     }
 
-    private void lockSuperAdmins(Connection connection)
-            throws SQLException {
-
+    private void lockSuperAdmins(Connection connection) throws SQLException {
         String sql = "SELECT id FROM users WHERE role = 'SUPER_ADMIN' FOR UPDATE";
 
         try (PreparedStatement statement = connection.prepareStatement(sql);
@@ -183,11 +170,8 @@ public class AdminRepository {
         }
     }
 
-    private int countSuperAdmins(Connection connection)
-            throws SQLException {
-
-        String sql =
-                "SELECT COUNT(*) FROM users WHERE role = 'SUPER_ADMIN'";
+    private int countSuperAdmins(Connection connection) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users WHERE role = 'SUPER_ADMIN'";
 
         try (PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {

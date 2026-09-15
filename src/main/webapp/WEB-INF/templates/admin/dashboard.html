@@ -7,7 +7,7 @@
     
     <title>Admin dashboard - Bushraat</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
-</head>
+  </head>
   
   <body>
     
@@ -148,11 +148,22 @@
                 
                 </div>
                 
-                <button class="btn"
+                <button class="btn" id="bookSubmitButton"
                         th:text="${editingBook != null} ? 'Save changes' : 'Add book'"
                         type="submit">
                   Add book
                 </button>
+                
+                <div class="upload-progress" hidden id="uploadProgress">
+                  <div class="upload-progress-header">
+                    <span id="uploadProgressText">Uploading...</span>
+                    <span id="uploadProgressPercent">0%</span>
+                  </div>
+                  
+                  <div class="upload-progress-track">
+                    <div class="upload-progress-bar" id="uploadProgressBar"></div>
+                  </div>
+                </div>
                 
                 <a class="cancel-link" th:href="@{/admin}" th:if="${editingBook != null}">Cancel</a>
               
@@ -285,7 +296,104 @@
       </main>
     
     </div>
-  
+    
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("bookForm");
+        
+        if (!form) {
+          return;
+        }
+        
+        const button = document.getElementById("bookSubmitButton");
+        const progress = document.getElementById("uploadProgress");
+        const progressBar = document.getElementById("uploadProgressBar");
+        const progressText = document.getElementById("uploadProgressText");
+        const progressPercent = document.getElementById("uploadProgressPercent");
+        
+        const originalButtonText = button.textContent.trim();
+        
+        let submitting = false;
+        
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          
+          if (submitting) {
+            return;
+          }
+          
+          if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+          }
+          
+          submitting = true;
+          
+          button.disabled = true;
+          button.textContent = "Uploading...";
+          
+          progress.hidden = false;
+          progressBar.style.width = "0%";
+          progressText.textContent = "Uploading...";
+          progressPercent.textContent = "0%";
+          
+          const xhr = new XMLHttpRequest();
+          
+          xhr.open(
+              form.method || "POST",
+              form.action,
+              true
+          );
+          
+          xhr.upload.addEventListener("progress", (event) => {
+            if (!event.lengthComputable) {
+              return;
+            }
+            
+            const percent = Math.round(
+                (event.loaded / event.total) * 100
+            );
+            
+            progressBar.style.width = percent + "%";
+            progressPercent.textContent = percent + "%";
+            
+            if (percent >= 100) {
+              progressText.textContent = "Processing book...";
+              progressPercent.textContent = "100%";
+              button.textContent = "Processing...";
+            }
+          });
+          
+          xhr.addEventListener("load", () => {
+            // The servlet redirects to /admin after successfully
+            // uploading the files and saving the book.
+            if (xhr.status >= 200 && xhr.status < 400) {
+              window.location.href = xhr.responseURL;
+              return;
+            }
+            
+            showError();
+          });
+          
+          xhr.addEventListener("error", showError);
+          xhr.addEventListener("abort", showError);
+          
+          xhr.send(new FormData(form));
+        });
+        
+        function showError() {
+          submitting = false;
+          
+          button.disabled = false;
+          button.textContent = originalButtonText;
+          
+          progressText.textContent = "Upload failed";
+          progressPercent.textContent = "";
+          
+          progressBar.style.width = "0%";
+        }
+      });
+    </script>
   </body>
 
 </html>

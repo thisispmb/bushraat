@@ -7,23 +7,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public final class Db {
-    private static final HikariDataSource DATA_SOURCE;
 
-    static {
-        HikariConfig config = new HikariConfig();
-
-        config.setDriverClassName("org.postgresql.Driver");
-        config.setJdbcUrl(value("BUSHRAAT_DB_URL",
-                "jdbc:postgresql://localhost:5432/bushraat"
-        ));
-        config.setUsername(value("BUSHRAAT_DB_USER", "postgres"));
-        config.setPassword(value("BUSHRAAT_DB_PASSWORD", "260803"));
-        config.setMaximumPoolSize(10);
-        config.setMinimumIdle(2);
-        config.setPoolName("BushraatPool");
-
-        DATA_SOURCE = new HikariDataSource(config);
-    }
+    private static final HikariDataSource DATA_SOURCE = createDataSource();
 
     private Db() {
     }
@@ -32,13 +17,72 @@ public final class Db {
         return DATA_SOURCE.getConnection();
     }
 
-    private static String value(String key, String fallback) {
-        String value = System.getProperty(key);
+    private static HikariDataSource createDataSource() {
+        String jdbcUrl = Env.get("BUSHRAAT_DB_URL");
+        String username = Env.get("BUSHRAAT_DB_USER");
+        String password = Env.get("BUSHRAAT_DB_PASSWORD");
 
-        if (value == null || value.isBlank()) {
-            value = System.getenv(key);
+        if (jdbcUrl == null || username == null || password == null) {
+            throw new IllegalStateException(
+                    "Database configuration is missing. " +
+                            "Set BUSHRAAT_DB_URL, BUSHRAAT_DB_USER and BUSHRAAT_DB_PASSWORD."
+            );
         }
 
-        return value == null || value.isBlank() ? fallback : value;
+        HikariConfig config = new HikariConfig();
+
+        config.setDriverClassName("org.postgresql.Driver");
+        config.setJdbcUrl(jdbcUrl);
+        config.setUsername(username);
+        config.setPassword(password);
+
+        config.setMaximumPoolSize(
+                parseInt("BUSHRAAT_DB_MAX_POOL_SIZE", 5)
+        );
+
+        config.setMinimumIdle(
+                parseInt("BUSHRAAT_DB_MIN_IDLE", 1)
+        );
+
+        config.setConnectionTimeout(
+                parseLong("BUSHRAAT_DB_CONNECTION_TIMEOUT_MS", 10_000)
+        );
+
+        config.setValidationTimeout(
+                parseLong("BUSHRAAT_DB_VALIDATION_TIMEOUT_MS", 5_000)
+        );
+
+        config.setPoolName("BushraatPool");
+
+        if (!Boolean.parseBoolean(
+                Env.get("BUSHRAAT_DB_PREPARED_STATEMENTS", "true"))) {
+
+            config.addDataSourceProperty("prepareThreshold", 0);
+            config.addDataSourceProperty(
+                    "preparedStatementCacheQueries", 0
+            );
+        }
+
+        return new HikariDataSource(config);
+    }
+
+    private static int parseInt(String key, int fallback) {
+        try {
+            return Integer.parseInt(
+                    Env.get(key, String.valueOf(fallback))
+            );
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
+
+    private static long parseLong(String key, long fallback) {
+        try {
+            return Long.parseLong(
+                    Env.get(key, String.valueOf(fallback))
+            );
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
     }
 }
